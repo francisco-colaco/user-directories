@@ -122,8 +122,8 @@ it is :recursive, then all descendents are also added."
   ;; See if the directory is to be added to load-path.
   (case add-to-path
     ((t 1 :self) (add-to-list 'load-path directory))
-    (:recursive) (let ((default-directory directory))
-                   (normal-top-level-add-subdirs-to-load-path))))
+    ((:recursive) (let ((default-directory directory))
+                    (normal-top-level-add-subdirs-to-load-path)))))
 
 
 (defun make-locate-user-file-fn (type)
@@ -169,7 +169,7 @@ initialisation procedure for it, the directories are set in
       (add-to-list 'load-path dir))
 
     (let ((dir (expand-file-name "lisp/" config-dir)))
-      (set-user-directory :user-lisp dir t :ercursive)
+      (set-user-directory :user-lisp dir t :recursive)
       (add-to-list 'load-path dir))))
 
 

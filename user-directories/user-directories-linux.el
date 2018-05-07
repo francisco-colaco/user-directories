@@ -61,8 +61,8 @@ Uses the binary 'xdg-user-dir' if available."
     (set-user-directory type (xdg-user-dir type)))
   (let ((config-dir (or (get-env "XDG_CONFIG_HOME") (expand-file-name "~/.config/")))
         (data-dir (or (get-env "XDG_DATA_HOME") (expand-file-name "~/.local/share/")))
-                  (cache-dir (or (get-env "XDG_CACHE_HOME") (expand-file-name "~/.cache/")))
-                  (runtime-dir (getenv "XDG_RUNTIME_DIR")))
+        (cache-dir (or (get-env "XDG_CACHE_HOME") (expand-file-name "~/.cache/")))
+        (runtime-dir (getenv "XDG_RUNTIME_DIR")))
     ;; Add the directories to the user directories file, creating them if absent.
     (set-user-directory :config (expand-file-name "emacs/" config-dir) t)
     (set-user-directory :data (expand-file-name "emacs/" data-dir) t)
