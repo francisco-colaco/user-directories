@@ -120,10 +120,10 @@ it is :recursive, then all descendents are also added."
     (make-directory directory t))
 
   ;; See if the directory is to be added to load-path.
-  (case add-to-path
-    ((t 1 :self) (add-to-list 'load-path directory))
-    ((:recursive) (let ((default-directory directory))
-                    (normal-top-level-add-subdirs-to-load-path)))))
+  (pcase add-to-path
+    ('(t 1 :self) (add-to-list 'load-path directory))
+    ('(:recursive) (let ((default-directory directory))
+		     (normal-top-level-add-subdirs-to-load-path)))))
 
 
 (defun make-locate-user-file-fn (type)
