@@ -74,7 +74,7 @@ a template.
 
 For instance, the library for darwin will be called
 user-directories-darwin.el, and that library will have a function called
-`setup-user-directories-darwin.el`.
+`setup-user-directories-darwin`.
 
 
 ## Copyright
