@@ -60,9 +60,9 @@
 
 
 (defun windows-shell-folder (folder)
-    "Returns a user shell folder.
+  "Returns a user shell folder.
 
- FOLDER is a string describing the folder purpose, like \"My Documents\"."
+FOLDER is a string describing the folder purpose, like \"My Documents\"."
   (let ((result (windows-read-registry-value "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder)))
     (substring (shell-command-to-string (concat "echo " result)) 0 -1)))
 

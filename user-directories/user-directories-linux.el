@@ -45,20 +45,45 @@
 
 ;;; Code:
 
+(eval-when-compile
+ (require 'cl))
+
+
 ;;;; Linux specific code.
+
+(defconst user-directories-have-xdg-user-dir
+  (not (null (locate-file "xdg-user-dir" exec-path)))
+  "Tells if the command xdg-user-dir was found in the executable path.
+
+Most Linux distributions have xdg-user-dir.  Older than 2010 may
+have not.  This constant determines if the command is safe to
+use: exists and is at the executable path.")
+
 
 (defun xdg-user-dir (type)
   "Find a XDG user directory of TYPE.
 
 Uses the binary 'xdg-user-dir' if available."
-  (let ((key (upcase (replace-regexp-in-string ":" "" (symbol-name type)))))
-    (substring (shell-command-to-string (concat "xdg-user-dir " key)) 0 -1)))
+  (if user-directories-have-xdg-user-dir
+      (let ((key (upcase (replace-regexp-in-string ":" "" (symbol-name type)))))
+        (substring (shell-command-to-string (concat "xdg-user-dir " key)) 0 -1))))
 
 
 (defun setup-user-directories-linux ()
   "Set up the user directories on Linux based systems."
-  (dolist (type '(:desktop :download :templates :publicshare :documents :pictures :videos))
-    (set-user-directory type (xdg-user-dir type)))
+
+  ;; Set the user folders.
+  (let ((dir-list '(:desktop "~/Desktop"
+                    :download "~/Downloads"
+                    :templates "~/Templates"
+                    :publicshare "~/Public"
+                    :documents "~/Documents"
+                    :pictures "~/Images"
+                    :videos "~/Videos")))
+    (cl-loop for (type default) on dir-list by (function cddr) do
+       (set-user-directory type (or (xdg-user-dir type) (expand-file-name default)))))
+
+  ;; Set the XDG base folders.
   (let ((config-dir (or (getenv "XDG_CONFIG_HOME") (expand-file-name "~/.config/")))
         (data-dir (or (getenv "XDG_DATA_HOME") (expand-file-name "~/.local/share/")))
         (cache-dir (or (getenv "XDG_CACHE_HOME") (expand-file-name "~/.cache/")))
@@ -69,7 +94,8 @@ Uses the binary 'xdg-user-dir' if available."
     (set-user-directory :cache (expand-file-name "emacs/" cache-dir) t)
     (set-user-directory :runtime (expand-file-name "emacs/" runtime-dir) t)
 
-    ;; Create user Lisp directories, adding them and their subdirs to `load-path'.
+    ;; Set the user Lisp directories, adding them and their subdirs to `load-path'.
+    ;; Create them if needed.
     (let ((dir (expand-file-name "emacs/lisp/" data-dir)))
       (set-user-directory :lisp dir t :recursive)
       (add-to-list 'load-path dir))
