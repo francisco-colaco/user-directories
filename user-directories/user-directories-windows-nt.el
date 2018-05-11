@@ -49,6 +49,24 @@
 
 ;;;; Windows NT specific code.
 
+(defun windows-read-registry-value (key value)
+  "From a registry KEY, reads VALUE, when on MS Windows."
+  (let ((command (concat "REG QUERY \"" key "\" /V \"" value "\""))
+        result tokens last-token)
+    (setq result (shell-command-to-string command)
+          tokens (split-string result nil t)
+          last-token (nth (1- (length tokens)) tokens))
+    (and (not (string= last-token "value.")) last-token)))
+
+
+(defun windows-shell-folder (folder)
+    "Returns a user shell folder.
+
+ FOLDER is a string describing the folder purpose, like \"My Documents\"."
+  (let ((result (windows-read-registry-value "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder)))
+    (substring (shell-command-to-string (concat "echo " result)) 0 -1)))
+
+
 (defun setup-user-directories-windows-nt ()
   "Set up the user directories on Windows based systems."
   (let ((appdata-dir (getenv "APPDATA"))
