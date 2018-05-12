@@ -88,7 +88,7 @@ Documents\".  It is part of the Microsoft Windows specification."
   (let ((result
           (or (windows-read-registry-value "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder)
               (windows-read-registry-value "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder))))
-    (substring (shell-command-to-string (concat "echo " result)) 0 -1)))
+    (substitute-in-file-name result)))
 
 
 (defun setup-user-directories-windows-nt ()
