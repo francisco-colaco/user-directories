@@ -8,7 +8,7 @@
 ;; Created: 2018-05-05
 ;; Keywords: emacs
 ;; Homepage: https://github.com/francisco.colaco/emacs-directories
-;; Package-Requires: ()
+;; Package-Requires: (cl)
 
 ;; This file is not yet part of GNU Emacs.
 
@@ -51,6 +51,21 @@
 
 ;;;; Linux specific code.
 
+(defvar linux-xdg-folder-definitions
+  '(:desktop "~/Desktop"
+    :download "~/Downloads"
+    :templates "~/Templates"
+    :publicshare "~/Public"
+    :documents "~/Documents"
+    :pictures "~/Images"
+    :videos "~/Videos")
+  "A list of Linux directory that will be searched.
+
+Each of the associations has a key and a default value, which the
+user directory will take if the command xdg-user-dir does not
+exist at the executable path.")
+
+
 (defconst user-directories-have-xdg-user-dir
   (not (null (locate-file "xdg-user-dir" exec-path)))
   "Tells if the command xdg-user-dir was found in the executable path.
@@ -73,15 +88,8 @@ Uses the binary 'xdg-user-dir' if available."
   "Set up the user directories on Linux based systems."
 
   ;; Set the user folders.
-  (let ((dir-list '(:desktop "~/Desktop"
-                    :download "~/Downloads"
-                    :templates "~/Templates"
-                    :publicshare "~/Public"
-                    :documents "~/Documents"
-                    :pictures "~/Images"
-                    :videos "~/Videos")))
-    (cl-loop for (type default) on dir-list by (function cddr) do
-       (set-user-directory type (or (xdg-user-dir type) (expand-file-name default)))))
+  (cl-loop for (type default) on linux-xdg-folder-definitions by (function cddr) do
+    (set-user-directory type (or (xdg-user-dir type) (expand-file-name default))))
 
   ;; Set the XDG base folders.
   (let ((config-dir (or (getenv "XDG_CONFIG_HOME") (expand-file-name "~/.config/")))

@@ -8,7 +8,7 @@
 ;; Created: 2018-05-05
 ;; Keywords: emacs
 ;; Homepage: https://github.com/francisco.colaco/emacs-directories
-;; Package-Requires: ()
+;; Package-Requires: (cl subr-x)
 
 ;; This file is not yet part of GNU Emacs.
 
@@ -47,8 +47,13 @@
 
 ;;; Code:
 
-;;;; Windows NT specific code.
+(eval-when-compile
+ (require 'cl)
+ (require 'subr-x))
 
+
+;; Read a registry key.  This should really not be in this library,
+;; since it has a broader application.
 (defun windows-read-registry-value (key value)
   "From a registry KEY, reads VALUE, when on MS Windows."
   (let ((command (concat "REG QUERY \"" key "\" /V \"" value "\""))
@@ -59,19 +64,38 @@
     (and (not (string= last-token "value.")) last-token)))
 
 
-(defun windows-shell-folder (folder)
-  "Returns a user shell folder.
+;;;; Windows NT specific code.
 
-FOLDER is a string describing the folder purpose, like \"My Documents\"."
-  (let ((result (windows-read-registry-value "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder)))
+(defvar windows-shell-folder-definitions
+  '(:computer "MyComputerFolder"
+    :desktop "Desktop"
+    :documents "Personal"
+    :download "Downloads"
+    :templates "Templates"
+    :pictures "My Pictures"
+    :music "My Music"
+    :videos "My Videos")
+  "A list of Microsoft Windows shell folders to search for existence.
+
+If the shell folder exists (a registry key), the directory will be set.")
+
+
+(defun windows-shell-folder (folder)
+  "Return a user shell folder.
+
+FOLDER is a string describing the folder purpose, like \"My
+Documents\".  It is part of the Microsoft Windows specification."
+  (let ((result
+          (or (windows-read-registry-value "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder)
+              (windows-read-registry-value "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder))))
     (substring (shell-command-to-string (concat "echo " result)) 0 -1)))
 
 
 (defun setup-user-directories-windows-nt ()
   "Set up the user directories on Windows based systems."
-  (let ((appdata-dir (getenv "APPDATA"))
-	(local-appdata-dir (getenv "LOCALAPPDATA"))
-	(temp-dir (getenv "TEMP")))
+  (let* ((appdata-dir (getenv "APPDATA"))
+         (local-appdata-dir (or (getenv "LOCALAPPDATA") appdata-dir))
+         (temp-dir (getenv "TEMP")))
     ;; Add the directories to the user directories file, creating them if absent.
     (set-user-directory :config (expand-file-name "emacs/config/" appdata-dir) t)
     (set-user-directory :data (expand-file-name "emacs/data/" local-appdata-dir) t)
@@ -88,14 +112,9 @@ FOLDER is a string describing the folder purpose, like \"My Documents\"."
       (add-to-list 'load-path dir)))
 
   ;; Add the personal folders.
-  (set-user-directory :computer (windows-shell-folder "MyComputerFolder"))
-  (set-user-directory :desktop (windows-shell-folder "Desktop"))
-  (set-user-directory :documents (windows-shell-folder "Personal"))
-  (set-user-directory :download (windows-shell-folder "Downloads"))
-  (set-user-directory :templates (windows-shell-folder "Templates"))
-  (set-user-directory :pictures (windows-shell-folder "My Pictures"))
-  (set-user-directory :music (windows-shell-folder "My Music"))
-  (set-user-directory :videos (windows-shell-folder "My Videos")))
+  (cl-loop for (type default) on windows-shell-folder-definitions by (function cddr) do
+    (if-let ((val (windows-shell-folder "MyComputerFolder")))
+      (set-user-directory type default))))
 
 
 (provide 'user-directories-windows-nt)
