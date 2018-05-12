@@ -84,10 +84,12 @@ If the shell folder exists (a registry key), the directory will be set.")
   "Return a user shell folder.
 
 FOLDER is a string describing the folder purpose, like \"My
-Documents\".  It is part of the Microsoft Windows specification."
-  (let ((result
-          (or (windows-read-registry-value "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder)
-              (windows-read-registry-value "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder))))
+Documents\".  It is part of the Microsoft Windows specification.
+
+Returns NIL if the key and value is not found."
+  (if-let ((result
+            (or (windows-read-registry-value "HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder)
+                (windows-read-registry-value "HKLM\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\User Shell Folders" folder))))
     (substitute-in-file-name result)))
 
 
