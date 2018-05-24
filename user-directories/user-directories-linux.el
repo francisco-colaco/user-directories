@@ -47,6 +47,7 @@
 
 (eval-when-compile
  (require 'cl))
+(require 'user-directories)
 
 
 ;;;; Linux specific code.

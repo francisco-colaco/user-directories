@@ -8,7 +8,7 @@
 ;; Created: 2018-05-05
 ;; Keywords: emacs
 ;; Homepage: https://github.com/francisco.colaco/emacs-directories
-;; Package-Requires: (cl subr-x)
+;; Package-Requires: (cl subr-x user-directories)
 
 ;; This file is not yet part of GNU Emacs.
 
@@ -50,6 +50,7 @@
 (eval-when-compile
  (require 'cl)
  (require 'subr-x))
+(require 'user-directories)
 
 
 ;; Read a registry key.  This should really not be in this library,

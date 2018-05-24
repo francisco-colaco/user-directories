@@ -144,58 +144,5 @@ If ONLY-IF-EXISTS is non-nil then, if the file is absent, return nil.")
       (locate-user-file ',type filename only-if-exists)))))
 
 
-(defun setup-user-directories-default ()
-  "Set up the user directories on unknown systems.
-
-When the system is unknown, or there is no specific
-initialisation procedure for it, the directories are set in
-`user-emacs-directory', but separated therein."
-  (let ((config-dir (expand-file-name "config/" user-emacs-directory))
-	(data-dir (expand-file-name "data/" user-emacs-directory))
-	(cache-dir (expand-file-name "cache/" user-emacs-directory))
-	(runtime-dir (expand-file-name "runtime/" user-emacs-directory)))
-    ;; Add the directories to the user directories file, creating them if absent.
-    (set-user-directory :config config-dir t)
-    (set-user-directory :data data-dir t)
-    (set-user-directory :cache cache-dir t)
-    (set-user-directory :runtime runtime-dir t)
-
-    (dolist (type '(:desktop :documents :download :pictures :videos))
-      (set-user-directory type (expand-file-name "~/")))
-
-    ;; Create user Lisp directories, adding them and their subdirs to `load-path'.
-    (let ((dir (expand-file-name "lisp/" data-dir)))
-      (set-user-directory :lisp dir t :recursive)
-      (add-to-list 'load-path dir))
-
-    (let ((dir (expand-file-name "lisp/" config-dir)))
-      (set-user-directory :user-lisp dir t :recursive)
-      (add-to-list 'load-path dir))))
-
-
-(defun setup-user-directories ()
-  "Set up the user directories, according to the operating system.
-
-Find which are sensible names for the user directories."
-  (let* ((os (car (last (split-string (symbol-name system-type) "/"))))
-	 (lib (concat "user-directories-" os)))
-    ;; One either finds the os specific libraries or uses the default.
-    (if (null (locate-library lib))
-	(setup-user-directories-default)
-      (progn
-	;; Load the library and call the setup function.
-	(load-library lib)
-	(funcall (intern (concat "setup-user-directories-" os))))))
-
-  ;; For all directory types defined previously, make a file locator
-  ;; function.
-  (dolist (key (map-keys user-directories))
-    (make-locate-user-file-fn key)))
-
-
-;; Run once.  ::CHECK:: Is this how it is supposed to be?
-(setup-user-directories)
-
-
 (provide 'user-directories)
 ;;; user-directories.el ends here
