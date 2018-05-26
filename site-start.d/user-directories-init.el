@@ -1,4 +1,6 @@
 (require 'setup-user-directories)
+(setup-user-directories)
+
 
 (let ((data-dir (get-user-directory :data))
       (config-dir (get-user-directory :config)))

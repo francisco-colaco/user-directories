@@ -107,6 +107,7 @@ initialisation procedure for it, the directories are set in
       (add-to-list 'load-path dir))))
 
 
+;;;###autoload
 (defun setup-user-directories ()
   "Set up the user directories, according to the operating system.
 
@@ -125,10 +126,6 @@ Find which are sensible names for the user directories."
   ;; function.
   (dolist (key (map-keys user-directories))
     (make-locate-user-file-fn key)))
-
-
-;; Run once.  ::CHECK:: Is this how it is supposed to be?
-(setup-user-directories)
 
 
 (provide 'setup-user-directories)
