@@ -98,13 +98,7 @@ initialisation procedure for it, the directories are set in
       (set-user-directory type (expand-file-name "~/")))
 
     ;; Create user Lisp directories, adding them and their subdirs to `load-path'.
-    (let ((dir (expand-file-name "lisp/" data-dir)))
-      (set-user-directory :lisp dir t :recursive)
-      (add-to-list 'load-path dir))
-
-    (let ((dir (expand-file-name "lisp/" config-dir)))
-      (set-user-directory :user-lisp dir t :recursive)
-      (add-to-list 'load-path dir))))
+    (setup-user-lisp-directories)))
 
 
 ;;;###autoload
@@ -120,12 +114,7 @@ Find which are sensible names for the user directories."
       (progn
 	;; Load the library and call the setup function.
 	(load-library lib)
-	(funcall (intern (concat "setup-user-directories-" os))))))
-
-  ;; For all directory types defined previously, make a file locator
-  ;; function.
-  (dolist (key (map-keys user-directories))
-    (make-locate-user-file-fn key)))
+	(funcall (intern (concat "setup-user-directories-" os)))))))
 
 
 (provide 'setup-user-directories)

@@ -8,7 +8,7 @@
 ;; Created: 2018-05-05
 ;; Keywords: emacs
 ;; Homepage: https://github.com/francisco.colaco/emacs-directories
-;; Package-Requires: (map seq)
+;; Package-Requires: (cl map seq)
 
 ;; This file is not yet part of GNU Emacs.
 ;;
@@ -76,6 +76,8 @@
 
 ;;; Code:
 
+(eval-when-compile
+  (require 'cl))
 (require 'map)
 (require 'seq)
 
@@ -116,14 +118,20 @@ it is :recursive, then all descendents are also added."
   (map-put user-directories type directory)
 
   ;; Create the directory when non existent if ENSURE is set.
-  (when (and ensure  (not (file-exists-p directory)))
+  (when (and ensure (not (file-exists-p directory)))
     (make-directory directory t))
 
   ;; See if the directory is to be added to load-path.
-  (pcase add-to-path
-    ('(t 1 :self) (add-to-list 'load-path directory))
-    ('(:recursive) (let ((default-directory directory))
-		     (normal-top-level-add-subdirs-to-load-path)))))
+  (case add-to-path
+    ((t 1 :self) (progn (add-to-list 'load-path directory))
+		     (message "Load path %s" directory))
+    ((:recursive) (let ((default-directory directory))
+		    (message "Load path recursive %s" directory) 
+		    (add-to-list 'load-path directory)
+		    (normal-top-level-add-subdirs-to-load-path))))
+
+  ;; Create a locator function.
+  (make-locate-user-file-fn type))
 
 
 (defun make-locate-user-file-fn (type)
@@ -142,6 +150,19 @@ If ONLY-IF-EXISTS is non-nil then, if the file is absent, return nil.")
       ;; ::CHECK:: is a string an appropriate type for the name of the file?
       ;; ::CHECK:: should only-if-exists also be taken into account?
       (locate-user-file ',type filename only-if-exists)))))
+
+
+(defun setup-user-lisp-directories ()
+  "Create and setup the two user lisp directories.
+
+The directories are located in the user config directory and in
+the user data directory, being the former provided for user files
+and the latter for third-party addons.
+
+The directories are added to path recursively.
+"
+  (set-user-directory :lisp (locate-user-data-file "lisp/") t :recursive)
+  (set-user-directory :user-lisp (locate-user-config-file "lisp/") t :recursive))
 
 
 (provide 'user-directories)

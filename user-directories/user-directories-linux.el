@@ -105,13 +105,7 @@ Uses the binary 'xdg-user-dir' if available."
 
     ;; Set the user Lisp directories, adding them and their subdirs to `load-path'.
     ;; Create them if needed.
-    (let ((dir (expand-file-name "emacs/lisp/" data-dir)))
-      (set-user-directory :lisp dir t :recursive)
-      (add-to-list 'load-path dir))
-
-    (let ((dir (expand-file-name "emacs/lisp/" config-dir)))
-      (set-user-directory :user-lisp dir t :recursive)
-      (add-to-list 'load-path dir))))
+    (setup-user-lisp-directories)))
 
 
 (provide 'user-directories-linux)

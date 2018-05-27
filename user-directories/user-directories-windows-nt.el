@@ -106,13 +106,7 @@ Returns NIL if the key and value is not found."
     (set-user-directory :runtime (expand-file-name "emacs/runtime/" temp-dir) t)
 
     ;; Create user Lisp directories, adding them and their subdirs to `load-path'.
-    (let ((dir (expand-file-name "emacs/lisp/" local-appdata-dir)))
-      (set-user-directory :lisp dir t :recursive)
-      (add-to-list 'load-path dir))
-
-    (let ((dir (expand-file-name "emacs/lisp/" appdata-dir)))
-      (set-user-directory :user-lisp dir t :recursive)
-      (add-to-list 'load-path dir)))
+    (setup-user-lisp-directories)
 
   ;; Add the personal folders.
   (cl-loop for (type default) on windows-shell-folder-definitions by (function cddr) do
