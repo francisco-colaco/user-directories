@@ -8,7 +8,7 @@
 ;; Created: 2018-05-05
 ;; Keywords: emacs
 ;; Homepage: https://github.com/francisco.colaco/emacs-directories
-;; Package-Requires: (cl map seq)
+;; Package-Requires: (cl map)
 
 ;; This file is not yet part of GNU Emacs.
 ;;
@@ -79,7 +79,6 @@
 (eval-when-compile
   (require 'cl))
 (require 'map)
-(require 'seq)
 
 
 (defvar user-directories (make-hash-table :test 'equal :size 15))
@@ -126,7 +125,7 @@ it is :recursive, then all descendents are also added."
     ((t 1 :self) (progn (add-to-list 'load-path directory))
 		     (message "Load path %s" directory))
     ((:recursive) (let ((default-directory directory))
-		    (message "Load path recursive %s" directory) 
+		    (message "Load path recursive %s" directory)
 		    (add-to-list 'load-path directory)
 		    (normal-top-level-add-subdirs-to-load-path))))
 
