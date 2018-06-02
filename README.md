@@ -77,7 +77,7 @@ configuration will continue from there.
 According to system-type, the last part after the slash (/), if there
 is one, constitutes the stem of the provider library and function.
 For instance, a `gnu/linux` system-type will load the library
-user-libraries-linux and execute `(setup-user-libraries-linux)`
+user-libraries-linux and execute `(setup-user-directories-linux)`
 automatically.
 
 If one wishes to provide a library for a new `system-type`, one must
