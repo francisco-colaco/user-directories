@@ -21,7 +21,7 @@ defined directories with the version of Windows.
 
 For instance, on Linux and European Portuguese:
 
-- `(locate-user-config-file "init.el")` on yields "/home/fhc/.config/emacs/init.el"
+- `(locate-user-config-file "init.el")` yields "/home/fhc/.config/emacs/init.el"
 - `(locate-user-data-file "known-projects.eld")` yields "/home/fhc/.local/share/emacs/known-projects.eld"
 - `(locate-user-cache-file "fontnames.cache")` yields "/home/fhc/.cache/emacs/fontnames.cache"
 - `(locate-user-documents-file "org/agenda.txt")` yields "/home/fhc/Documentos/org/agenda.txt"
