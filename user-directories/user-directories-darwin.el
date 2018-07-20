@@ -58,13 +58,13 @@
     :documents "~/Documents"
     :pictures "~/Pictures"
     :videos "~/Movies")
-  "A list of Darwin directory that will be searched.
+  "Darwin directories that will be mapped into user-directories.
 
 Each of the associations has a key and a default value, which is
 the canonical (untranslated) name of the folder.  The name that
-is presented to the user in Finder, varying according to the
-locale, is phony, being the untranslated name the real directory
-name.")
+is presented to the user in Finder, which varies according to the
+locale, is phony.  The name in the file system is in the English
+language, regardless of the used locale.")
 
 
 (defun setup-user-directories-darwin ()
