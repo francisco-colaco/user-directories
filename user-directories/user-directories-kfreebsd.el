@@ -1,4 +1,4 @@
-;;; user-directories-linux.el --- Linux specification for User Emacs directories   -*- lexical-binding: t -*-
+;;; user-directories-kfreebsd.el --- FreeBSD specification for User Emacs directories   -*- lexical-binding: t -*-
 
 ;; Copyright (C)2018 Free Software Foundation
 
@@ -8,7 +8,7 @@
 ;; Created: 2018-05-05
 ;; Keywords: emacs
 ;; Homepage: https://github.com/francisco.colaco/emacs-directories
-;; Package-Requires: (cl)
+;; Package-Requires:
 
 ;; This file is not yet part of GNU Emacs.
 
@@ -27,7 +27,7 @@
 
 ;;; Commentary:
 
-;; The Linux configuration of the user-directories package uses
+;; The FreeBSD configuration of the user-directories package uses
 ;; xdg-user-dir, present at all present distributions.
 ;;
 ;; There are directories for user :data, :config, :cache and :runtime
@@ -48,13 +48,12 @@
 (require 'xdg-user-dir)
 
 
-;;;; Linux specific code.
+(defun setup-user-directories-kfreebsd ()
+  "Set up the user directories on FreeBSD based systems."
 
-(defun setup-user-directories-linux ()
-  "Set up the user directories on Linux based systems."
-
+  ;; Assign the XDG user directories.
   (xdg-user-dir-assign-directories))
 
 
-(provide 'user-directories-linux)
-;;; user-directories-linux.el ends here
+(provide 'user-directories-kfreebsd)
+;;; user-directories-kfreebsd.el ends here
