@@ -111,7 +111,7 @@ Returns NIL if the key and value is not found."
   ;; Add the personal folders.
   (cl-loop for (type default) on windows-shell-folder-definitions by (function cddr) do
     (if-let ((val (windows-shell-folder "MyComputerFolder")))
-      (set-user-directory type default))))
+      (set-user-directory type default)))))
 
 
 (provide 'user-directories-windows-nt)
