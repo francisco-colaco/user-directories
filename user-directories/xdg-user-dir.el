@@ -8,7 +8,7 @@
 ;; Created: 2018-07-20
 ;; Keywords: emacs
 ;; Homepage: https://github.com/francisco.colaco/emacs-directories
-;; Package-Requires: (cl)
+;; Package-Requires: (cl directories)
 
 ;; This file is not yet part of GNU Emacs.
 
@@ -47,7 +47,7 @@
 
 (eval-when-compile
  (require 'cl))
-(require 'user-directories)
+(require 'directories)
 
 
 (defconst xdg-user-dir-exists

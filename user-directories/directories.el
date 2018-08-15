@@ -1,0 +1,130 @@
+;;; directories.el --- User Emacs directories    -*- lexical-binding: t -*-
+
+;; Copyright (C)2018 Free Software Foundation
+
+;; Author: Francisco Miguel Colaço <francisco.colaco@gmail.com>
+;; Maintainer: Francisco Miguel Colaço <francisco.colaco@gmail.com>
+;; Version: 1
+;; Created: 2018-05-05
+;; Keywords: emacs
+;; Homepage: https://github.com/francisco.colaco/emacs-directories
+;; Package-Requires: (cl map)
+
+;; This file is not yet part of GNU Emacs.
+;;
+;; This program is free software: you can redistribute it and/or
+;; modify it under the terms of the GNU General Public License as
+;; published by the Free Software Foundation, either version 3 of the
+;; License, or (at your option) any later version.
+;;
+;; This program is distributed in the hope that it will be useful, but
+;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;; General Public License for more details.
+;;
+;; You should have received a copy of the GNU General Public License
+;; along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+;;; Commentary:
+
+;; This package contains facilities to store a map of user
+;; directories.  A directory can be added to such map, keyed by a
+;; symbol like :config or :documents.
+;;
+;; A function is also there to set up the Lisp directories for the
+;; user: one in :data directory and another in :config.  The one in
+;; :config is meant for the user’s packages and in :data for third
+;; party packages.
+;;
+
+;;; Code:
+
+(eval-when-compile
+  (require 'cl))
+(require 'map)
+
+
+(defvar user-directories (make-hash-table :test 'equal :size 15))
+
+
+(defun locate-user-file (directory-type filename &optional only-if-exists)
+  "Given the DIRECTORY-TYPE, locate FILENAME therein.
+
+If a file with that name does not exist and ONLY-IF-EXISTS is non-nil,
+then return nil."
+  (let* ((dirname (map-elt user-directories directory-type))
+	 (path (expand-file-name filename dirname)))
+    (when (null dirname)
+      ())
+    (if (and only-if-exists
+	     (not (file-exists-p path)))
+	nil
+      path)))
+
+
+(defun get-user-directory (type)
+  "Get the user directory keyed TYPE.
+
+DIR is a path to a the TYPE within the user directories."
+  (map-elt user-directories type))
+
+
+(defun set-user-directory (type directory &optional ensure add-to-path)
+  "Set the user directory keyed TYPE to DIRECTORY.
+
+DIR is a path to a the TYPE within the user directories.  If ENSURE
+is t, the directory will be created along with it's parents.
+
+If ADD-TO-PATH is t, the directory is added to ‘load-path’.  If
+it is :recursive, then all descendents are also added."
+  (map-put user-directories type directory)
+
+  ;; Create the directory when non existent if ENSURE is set.
+  (when (and ensure (not (file-exists-p directory)))
+    (make-directory directory t))
+
+  ;; See if the directory is to be added to load-path.
+  (case add-to-path
+    ((t 1 :self) (progn (add-to-list 'load-path directory))
+		     (message "Load path %s" directory))
+    ((:recursive) (let ((default-directory directory))
+		    (message "Load path recursive %s" directory)
+		    (add-to-list 'load-path directory)
+		    (normal-top-level-add-subdirs-to-load-path))))
+
+  ;; Create a locator function.
+  (make-locate-user-file-fn type))
+
+
+(defun make-locate-user-file-fn (type)
+  "Make a location function for an user file.
+
+Create a file, given the TYPE of directory.  Type is an argument
+that should be present in `user-directories'.  The function is
+interactive and has a suitable docstring."
+  (let* ((name (substring (symbol-name type) 1))
+	 (symb (intern (format "locate-user-%s-file" name))))
+    (fset symb
+	  `(lambda (filename &optional only-if-exists)
+	     ,(concat "Locate FILENAME at the " (symbol-name type) " directory.
+If ONLY-IF-EXISTS is non-nil then, if the file is absent, return nil.")
+      (interactive "sName of the file: \n")
+      ;; ::CHECK:: is a string an appropriate type for the name of the file?
+      ;; ::CHECK:: should only-if-exists also be taken into account?
+      (locate-user-file ',type filename only-if-exists)))))
+
+
+(defun setup-user-lisp-directories ()
+  "Create and setup the two user lisp directories.
+
+The directories are located in the user config directory and in
+the user data directory, being the former provided for user files
+and the latter for third-party addons.
+
+The directories are added to path recursively.
+"
+  (set-user-directory :lisp (locate-user-data-file "lisp/") t :recursive)
+  (set-user-directory :user-lisp (locate-user-config-file "lisp/") t :recursive))
+
+
+(provide 'directories)
